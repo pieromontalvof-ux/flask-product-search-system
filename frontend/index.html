@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            background:#f5f5f5;
+            margin:0;
+        }
+
+        .container{
+            width:400px;
+            margin:100px auto;
+        }
+
+        .card{
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0px 0px 15px rgba(0,0,0,.15);
+        }
+
+        h1{
+            text-align:center;
+            color:#0d6efd;
+        }
+
+        label{
+            font-size:18px;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            margin-bottom:20px;
+            border:1px solid #ccc;
+            border-radius:5px;
+            box-sizing:border-box;
+        }
+
+        .btn{
+            width:100%;
+            padding:12px;
+            background:#0d6efd;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        .error{
+            color:red;
+            text-align:center;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>🔐 Login</h1>
+
+        <form method="POST">
+
+            <label>Usuario</label>
+            <input type="text" name="usuario" required>
+
+            <label>Contraseña</label>
+            <input type="password" name="password" required>
+
+            <button class="btn" type="submit">
+                Ingresar
+            </button>
+
+        </form>
+
+        {% if error %}
+        <p class="error">
+            {{ error }}
+        </p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
