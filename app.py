@@ -4,9 +4,6 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = "123456"
 
-# ======================
-# CREAR BASE DE DATOS
-# ======================
 
 def crear_bd():
     conexion = sqlite3.connect("database.db")
@@ -59,9 +56,7 @@ def crear_bd():
     conexion.commit()
     conexion.close()
 
-# ======================
-# RUTAS
-# ======================
+
 
 @app.route("/")
 def index():
@@ -155,9 +150,7 @@ def buscar_producto():
 def logout():
     session.clear()
     return redirect("/login")
-# ======================
-# INICIO
-# ======================
+
 
 crear_bd()
 
