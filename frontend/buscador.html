@@ -9,7 +9,7 @@
 <nav class="navbar navbar-dark bg-primary">
     <div class="container">
         <span class="navbar-brand">Buscador de Productos</span>
-        <a href="/logout" class="btn btn-outline-light">Salir</a>
+        <a href="index.html" class="btn btn-outline-light">Salir</a>
     </div>
 </nav>
 
@@ -24,7 +24,7 @@
 
         <div id="resultado"></div>
 
-        <a href="/principal" class="btn btn-secondary mt-3">
+        <a href="principal.html" class="btn btn-secondary mt-3">
             Regresar al panel
         </a>
     </div>
@@ -34,7 +34,7 @@
 function buscar(){
     let codigo = document.getElementById("codigo").value;
 
-    fetch("/api/buscar_producto", {
+    fetch("https://flask-product-search-system.onrender.com/api/buscar_producto", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({codigo: codigo})
@@ -65,6 +65,13 @@ function buscar(){
                 </div>
             `;
         }
+    })
+    .catch(error => {
+        document.getElementById("resultado").innerHTML = `
+            <div class="alert alert-warning">
+                Error al conectar con el backend de Render.
+            </div>
+        `;
     });
 }
 </script>
