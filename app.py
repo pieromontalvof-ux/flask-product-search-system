@@ -155,19 +155,6 @@ def buscar_producto():
 def logout():
     session.clear()
     return redirect("/login")
-
-conexion = sqlite3.connect("database.db")
-cursor = conexion.cursor()
-
-cursor.execute("""
-INSERT INTO productos
-(codigo,nombre,descripcion,precio,stock,categoria)
-VALUES
-('P004','Monitor Samsung','Monitor 24 pulgadas',800,5,'Tecnologia')
-""")
-
-conexion.commit()
-conexion.close()
 # ======================
 # INICIO
 # ======================
