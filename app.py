@@ -172,6 +172,7 @@ conexion.close()
 # INICIO
 # ======================
 
+crear_bd()
+
 if __name__ == "__main__":
-    crear_bd()
     app.run(debug=True)
