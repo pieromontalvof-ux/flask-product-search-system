@@ -1,0 +1,177 @@
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import sqlite3
+
+app = Flask(__name__)
+app.secret_key = "123456"
+
+# ======================
+# CREAR BASE DE DATOS
+# ======================
+
+def crear_bd():
+    conexion = sqlite3.connect("database.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT,
+        nombre TEXT
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS productos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        codigo TEXT UNIQUE,
+        nombre TEXT,
+        descripcion TEXT,
+        precio REAL,
+        stock INTEGER,
+        categoria TEXT
+    )
+    """)
+
+    cursor.execute("SELECT COUNT(*) FROM usuarios")
+
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("""
+        INSERT INTO usuarios(username,password,nombre)
+        VALUES('admin','1234','Administrador')
+        """)
+
+    cursor.execute("SELECT COUNT(*) FROM productos")
+
+    if cursor.fetchone()[0] == 0:
+        productos = [
+            ('P001','Laptop Lenovo','Laptop Core i5',2500,10,'Tecnologia'),
+            ('P002','Mouse Logitech','Mouse Inalambrico',80,20,'Accesorios'),
+            ('P003','Teclado Redragon','Teclado Mecanico',150,15,'Accesorios')
+        ]
+
+        cursor.executemany("""
+        INSERT INTO productos
+        (codigo,nombre,descripcion,precio,stock,categoria)
+        VALUES(?,?,?,?,?,?)
+        """, productos)
+
+    conexion.commit()
+    conexion.close()
+
+# ======================
+# RUTAS
+# ======================
+
+@app.route("/")
+def index():
+    return redirect("/login")
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+
+    if request.method == "POST":
+
+        usuario = request.form["usuario"]
+        password = request.form["password"]
+
+        conexion = sqlite3.connect("database.db")
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+        SELECT * FROM usuarios
+        WHERE username=? AND password=?
+        """,(usuario,password))
+
+        user = cursor.fetchone()
+
+        conexion.close()
+
+        if user:
+            session["usuario"] = user[3]
+            return redirect("/principal")
+        else:
+            return render_template(
+                "login.html",
+                error="Credenciales incorrectas"
+            )
+
+    return render_template("login.html")
+
+@app.route("/principal")
+def principal():
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    return render_template(
+        "principal.html",
+        usuario=session["usuario"]
+    )
+
+@app.route("/buscador")
+def buscador():
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    return render_template("buscador.html")
+
+@app.route("/api/buscar_producto", methods=["POST"])
+def buscar_producto():
+
+    codigo = request.json["codigo"]
+
+    conexion = sqlite3.connect("database.db")
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+    SELECT codigo,nombre,descripcion,precio,stock,categoria
+    FROM productos
+    WHERE codigo=?
+    """,(codigo,))
+
+    producto = cursor.fetchone()
+
+    conexion.close()
+
+    if producto:
+
+        return jsonify({
+            "encontrado": True,
+            "codigo": producto[0],
+            "nombre": producto[1],
+            "descripcion": producto[2],
+            "precio": producto[3],
+            "stock": producto[4],
+            "categoria": producto[5]
+        })
+
+    return jsonify({
+        "encontrado": False
+    })
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+conexion = sqlite3.connect("database.db")
+cursor = conexion.cursor()
+
+cursor.execute("""
+INSERT INTO productos
+(codigo,nombre,descripcion,precio,stock,categoria)
+VALUES
+('P004','Monitor Samsung','Monitor 24 pulgadas',800,5,'Tecnologia')
+""")
+
+conexion.commit()
+conexion.close()
+# ======================
+# INICIO
+# ======================
+
+if __name__ == "__main__":
+    crear_bd()
+    app.run(debug=True)
